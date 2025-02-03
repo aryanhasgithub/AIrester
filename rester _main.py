@@ -17,7 +17,7 @@ import webcolors
 
 
 client= Groq(
-    api_key="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",
+    api_key="",
 )
 
 class assistant:
