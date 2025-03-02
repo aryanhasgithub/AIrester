@@ -1,3 +1,4 @@
+
 import requests
 import pyttsx3
 import speech_recognition as sr
@@ -12,12 +13,12 @@ from pygame import mixer
 from playsound import playsound
 import pyjokes
 import wikipedia
-
+import subprocess
 import webcolors
 
 
 client= Groq(
-    api_key="",
+    api_key="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",
 )
 
 class assistant:
@@ -118,8 +119,7 @@ class assistant:
     def process_command(self, command):
         print(f"Processing command: {command}")
         if "set alarm at" in command:
-            time = self.extract_alarm_time(command)
-            self.set_alarm(time)
+            self.setalarm(command)
         elif "set timer for" in command:
             duration = self.extract_duration(command)
             self.set_timer(duration)
@@ -134,6 +134,18 @@ class assistant:
              self.speak(f"turning off {entity_id}")
              entity_id =entity_id.replace(" ", "")             
              self.turnoffswitch(entity_id)
+        elif "turn on fan" in command:
+            
+             entity_id =entity_id =command.replace("turn on fan", "")
+             self.speak(f"turning on {entity_id}")
+             entity_id =entity_id.replace(" ", "")             
+             self.turnonfan(entity_id)
+        elif "turn off fan" in command:
+            
+             entity_id =entity_id =command.replace("turn off fan", "")
+             self.speak(f"turning off {entity_id}")
+             entity_id =entity_id.replace(" ", "")             
+             self.turnofffan(entity_id)     
         elif "turn on light" in command:
             entity_id =entity_id =command.replace("turn on light", "")
             self.speak(f"turning on {entity_id}")
@@ -215,14 +227,14 @@ class assistant:
             messages=[
            {
             "role": "user",
-            "content":command+"you have to answer this but if it seems that some thing got cut off  then reply:oops you missed something there keep in mind that you have to give tha answer and not ask follow up questions",
+            "content":command+"answer this question in 3-5 lines ,but if its incomplete just answer i couldent hear you" ,
            }
          ],
          model="gemma2-9b-it",
          )   
         print(chat_completion.choices[0].message.content)
         
-        self.speak(chat_completion.choices[0].message.content)
+        self.speak(chat_completion.choices[0].message.content.replace("*",""))
         
        
         
@@ -232,8 +244,8 @@ class assistant:
 
     def turnonlight(self, entity_id):
         with Client(
-        'http://homeassistant.local:8123/api',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjMGU2NTE4YmNjNjk0OGE3ODA0NjVlN2MyMTYwYzY5YiIsImlhdCI6MTczNzM4MTIyMywiZXhwIjoyMDUyNzQxMjIzfQ.gvr3jtcEkEqU8zX2fCUNdJCFRgUscA9o1ZtGA0Xgx38'
+        'http://192.168.29.128:8123/api',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI4NDJmMTBiOTYxNDA0MTg4ODY1MTdjNzE1NmNlMzk5MCIsImlhdCI6MTc0MDMwNzgyNCwiZXhwIjoyMDU1NjY3ODI0fQ.y4Eomac86AzUI-cZnlUtbngGKGeEB_JsuAcfXxli3eI'
         ) as client:
             cos = client.get_domain("light")
             ent = "light" + "." + entity_id
@@ -241,17 +253,35 @@ class assistant:
             cos.turn_on(entity_id=ent,rgb_color=[0,0,0])
     def turnofflight(self, entity_id):
         with Client(
-        'http://homeassistant.local:8123/api',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjMGU2NTE4YmNjNjk0OGE3ODA0NjVlN2MyMTYwYzY5YiIsImlhdCI6MTczNzM4MTIyMywiZXhwIjoyMDUyNzQxMjIzfQ.gvr3jtcEkEqU8zX2fCUNdJCFRgUscA9o1ZtGA0Xgx38'
+        'http://192.168.29.128:8123/api',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI4NDJmMTBiOTYxNDA0MTg4ODY1MTdjNzE1NmNlMzk5MCIsImlhdCI6MTc0MDMwNzgyNCwiZXhwIjoyMDU1NjY3ODI0fQ.y4Eomac86AzUI-cZnlUtbngGKGeEB_JsuAcfXxli3eI'
         ) as client:
             cos = client.get_domain("light")
             ent = "light" + "." + entity_id
-            
+            print(ent)
             cos.turn_off(entity_id=ent)
+    def turnonfan(self, entity_id):
+        with Client(
+        'http://192.168.29.128:8123/api',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI4NDJmMTBiOTYxNDA0MTg4ODY1MTdjNzE1NmNlMzk5MCIsImlhdCI6MTc0MDMwNzgyNCwiZXhwIjoyMDU1NjY3ODI0fQ.y4Eomac86AzUI-cZnlUtbngGKGeEB_JsuAcfXxli3eI'
+        ) as client:
+            cos = client.get_domain("fan")
+            ent = "fan" + "." + entity_id
+            print(ent)
+            cos.turn_on(entity_id=ent)
+    def turnofffan(self, entity_id):
+        with Client(
+        'http://192.168.29.128:8123/api',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI4NDJmMTBiOTYxNDA0MTg4ODY1MTdjNzE1NmNlMzk5MCIsImlhdCI6MTc0MDMwNzgyNCwiZXhwIjoyMDU1NjY3ODI0fQ.y4Eomac86AzUI-cZnlUtbngGKGeEB_JsuAcfXxli3eI'
+        ) as client:
+            cos = client.get_domain("fan")
+            ent = "fan" + "." + entity_id
+            print(ent)
+            cos.turn_off(entity_id=ent)          
     def setcolor(self,entity,color):
         with Client(
-        'http://homeassistant.local:8123/api',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjMGU2NTE4YmNjNjk0OGE3ODA0NjVlN2MyMTYwYzY5YiIsImlhdCI6MTczNzM4MTIyMywiZXhwIjoyMDUyNzQxMjIzfQ.gvr3jtcEkEqU8zX2fCUNdJCFRgUscA9o1ZtGA0Xgx38'
+        'http://192.168.29.128:8123/api',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI4NDJmMTBiOTYxNDA0MTg4ODY1MTdjNzE1NmNlMzk5MCIsImlhdCI6MTc0MDMwNzgyNCwiZXhwIjoyMDU1NjY3ODI0fQ.y4Eomac86AzUI-cZnlUtbngGKGeEB_JsuAcfXxli3eI'
         ) as client:
             cos = client.get_domain("light")
             ent = "light" + "." + entity
@@ -260,8 +290,8 @@ class assistant:
             cos.turn_on(entity_id=ent,rgb_color=collist)
     def lightbrightness(slef,entity,brightness):
          with Client(
-        'http://homeassistant.local:8123/api',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjMGU2NTE4YmNjNjk0OGE3ODA0NjVlN2MyMTYwYzY5YiIsImlhdCI6MTczNzM4MTIyMywiZXhwIjoyMDUyNzQxMjIzfQ.gvr3jtcEkEqU8zX2fCUNdJCFRgUscA9o1ZtGA0Xgx38'
+        'http://192.168.29.128:8123/api',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI4NDJmMTBiOTYxNDA0MTg4ODY1MTdjNzE1NmNlMzk5MCIsImlhdCI6MTc0MDMwNzgyNCwiZXhwIjoyMDU1NjY3ODI0fQ.y4Eomac86AzUI-cZnlUtbngGKGeEB_JsuAcfXxli3eI'
         ) as client:
             cos = client.get_domain("light")
             ent = "light" + "." + entity
@@ -273,11 +303,25 @@ class assistant:
             
         
 
-            
+    def setalarm(self,alarm_time):
+        if "for" in alarm_time:
+            alarm_time = alarm_time.replace("set alarm for ","")
+        else:    
+            alarm_time = alarm_time.replace("set alarm at ","")
+        if "p.m." in alarm_time:    
+            alarm_time = alarm_time.replace("p.m.","PM")
+        else:
+            alarm_time = alarm_time.replace("a.m.","AM")
+        timeofal = datetime.strptime(alarm_time, "%I:%M %p").time()
+        timeofal = timeofal.replace(hour=timeofal.hour % 12 + (timeofal.hour // 12) * 12)
+        timeofal = str(timeofal)
+        print(timeofal)
+        subprocess.run(f'start powershell python time.py {timeofal}', shell=True)
+
     def turnonswitch(self, entity_id):
         with Client(
-        'http://homeassistant.local:8123/api',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjMGU2NTE4YmNjNjk0OGE3ODA0NjVlN2MyMTYwYzY5YiIsImlhdCI6MTczNzM4MTIyMywiZXhwIjoyMDUyNzQxMjIzfQ.gvr3jtcEkEqU8zX2fCUNdJCFRgUscA9o1ZtGA0Xgx38'
+        'http://192.168.29.128:8123/api',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI4NDJmMTBiOTYxNDA0MTg4ODY1MTdjNzE1NmNlMzk5MCIsImlhdCI6MTc0MDMwNzgyNCwiZXhwIjoyMDU1NjY3ODI0fQ.y4Eomac86AzUI-cZnlUtbngGKGeEB_JsuAcfXxli3eI'
         ) as client:
             cos = client.get_domain("switch")
             ent = "switch" + "." + entity_id
@@ -287,8 +331,8 @@ class assistant:
 
     def turnoffswitch(self, entity_id):
         with Client(
-        'http://homeassistant.local:8123/api',
-        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjMGU2NTE4YmNjNjk0OGE3ODA0NjVlN2MyMTYwYzY5YiIsImlhdCI6MTczNzM4MTIyMywiZXhwIjoyMDUyNzQxMjIzfQ.gvr3jtcEkEqU8zX2fCUNdJCFRgUscA9o1ZtGA0Xgx38'
+        'http://192.168.29.128:8123/api',
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI4NDJmMTBiOTYxNDA0MTg4ODY1MTdjNzE1NmNlMzk5MCIsImlhdCI6MTc0MDMwNzgyNCwiZXhwIjoyMDU1NjY3ODI0fQ.y4Eomac86AzUI-cZnlUtbngGKGeEB_JsuAcfXxli3eI'
         ) as client:
             cos = client.get_domain("switch")
             ent = "switch" + "." + entity_id
@@ -329,15 +373,15 @@ class assistant:
                 # Continuously listen for the keyword 'assistant'
                 with self.mic as source:
                     self.recognizer.adjust_for_ambient_noise(source)
-                    print("Listening for keyword 'assistant'...")
-                    audio = self.recognizer.listen(source, timeout=5)  # Listen for 5 seconds
+                    print("Listening for keyword 'spark'...")
+                    audio = self.recognizer.listen(source, timeout=20)  # Listen for 5 seconds
 
                 command = self.recognize_command(audio)
 
                 print(f"Detected: {command}")
 
                 # If 'assistant' is detected, proceed to command processing
-                if "assistant" in command:
+                if "spark" in command:
                     print("Activated! Now listening for further commands...")
                     self.play_sound()
                     self.listen_for_commands()  # Start listening for actual commands
@@ -358,7 +402,7 @@ class assistant:
                 with self.mic as source:
                     self.recognizer.adjust_for_ambient_noise(source)
                     print("Listening for command...")
-                    audio = self.recognizer.listen(source, phrase_time_limit=15)  # Timeout after 10 seconds of silence
+                    audio = self.recognizer.listen(source, phrase_time_limit=15,timeout=20)  # Timeout after 10 seconds of silence
 
                 command = self.recognize_command(audio)
                 print(f"Detected command: {command}")
@@ -392,8 +436,8 @@ class assistant:
 
     
 if __name__ == "__main__":
-    home_assistant_url = "http://homeassistant.local:8123"
-    access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJjMGU2NTE4YmNjNjk0OGE3ODA0NjVlN2MyMTYwYzY5YiIsImlhdCI6MTczNzM4MTIyMywiZXhwIjoyMDUyNzQxMjIzfQ.gvr3jtcEkEqU8zX2fCUNdJCFRgUscA9o1ZtGA0Xgx38"
+    home_assistant_url = "http://192.168.29.128:8123"
+    access_token = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI4NDJmMTBiOTYxNDA0MTg4ODY1MTdjNzE1NmNlMzk5MCIsImlhdCI6MTc0MDMwNzgyNCwiZXhwIjoyMDU1NjY3ODI0fQ.y4Eomac86AzUI-cZnlUtbngGKGeEB_JsuAcfXxli3eI"
     
     groqcloud_key = "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"
     weather_api_key = "47f17fcedd2cfb3849a3ec381dc5804e"  # Add your weather API key here
